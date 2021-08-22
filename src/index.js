@@ -4,6 +4,7 @@ import "./index.css";
 
 const Square = (props) => {
   return (
+    // so one of the property is gonna have a onclick function that we want to execute
     <button className="square" onClick={props.onClick}>
       {props.value}
     </button>
@@ -13,16 +14,34 @@ const Square = (props) => {
 class Board extends React.Component {
   constructor(props) {
     super(props);
+    // the first time this board renders we wanna have a null inside the squares array that is because we wanna show nothing, and the xIsNext tells that its x's turn now
     this.state = {
       squares: Array(9).fill(null),
       xIsNext: true,
+      isTie: false,
     };
   }
 
+  // ifArrHasNull(arr) {
+  //   return arr.some((el) => el == null);
+  // }
+
+  // this is the method we will be passing in the square
   handleClick(i) {
-    const squares = this.state.squares.slice();
+    // the i is basically the number of the square
+
+    const squares = this.state.squares.slice(); // making a copy of the squares
 
     if (calculateWinner(squares)) {
+      // if there is a winner then its gonna say no more clicking
+      return;
+    } else if (
+      !squares.some((el) => el == null) //&& // checks if any element is null if it is returns true then this becomes false ( for checking if the array is full )
+    ) {
+      this.setState({
+        isTie: true,
+      });
+
       return;
     }
 
@@ -31,15 +50,16 @@ class Board extends React.Component {
 
     squares[i] = this.state.xIsNext ? "X" : "O";
     this.setState({
-      squares: squares,
+      squares: squares, // remember that the this squares is **not** from state this is the copy that we made why? we'll see...
       xIsNext: !this.state.xIsNext,
     });
   }
 
+  // why are we using this renderSquare as a method and not just <Square />? because we wanna be able to pass which square it is that we're gonna pass to know that which one is checked
   renderSquare(i) {
     return (
       <Square
-        value={this.state.squares[i]}
+        value={this.state.squares[i]} // this will take the value from the state its either gonna be x . o or null ( which will render nothing )
         onClick={() => this.handleClick(i)}
       />
     );
@@ -50,6 +70,8 @@ class Board extends React.Component {
     let status;
     if (winner) {
       status = `Winner! -> ${winner}`;
+    } else if (this.state.isTie) {
+      status = `No one won, you both are losers :0`;
     } else {
       status = `Next player: ${this.state.xIsNext ? "X" : "O"}`;
     }
