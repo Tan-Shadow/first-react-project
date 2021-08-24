@@ -2,6 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 
+const RefreshBtn = (props) => {
+  return (
+    <button className="btn btn-primary m-2" onClick={props.refreshClick}>
+      Reload the game
+    </button>
+  );
+};
+
 const Square = (props) => {
   return (
     // so one of the property is gonna have a onclick function that we want to execute
@@ -22,21 +30,21 @@ class Board extends React.Component {
     };
   }
 
-  // ifArrHasNull(arr) {
-  //   return arr.some((el) => el == null);
-  // }
+  handleRefreshClick() {
+    window.location.reload();
+  }
 
   // this is the method we will be passing in the square
   handleClick(i) {
     // the i is basically the number of the square
 
-    const squares = this.state.squares.slice(); // making a copy of the squares
+    const squares = [...this.state.squares]; // making a copy of the squares
 
     if (calculateWinner(squares)) {
       // if there is a winner then its gonna say no more clicking
       return;
     } else if (
-      !squares.some((el) => el == null) //&& // checks if any element is null if it is returns true then this becomes false ( for checking if the array is full )
+      !squares.some((el) => el == null) // checks if any element is null if it is returns true then this becomes false ( for checking if the array is full )
     ) {
       this.setState({
         isTie: true,
@@ -45,12 +53,9 @@ class Board extends React.Component {
       return;
     }
 
-    // if (this.xIsNext) squares[i] = "x";
-    // else squares[i] = "o";
-
-    squares[i] = this.state.xIsNext ? "X" : "O";
+    squares[i] = this.state.xIsNext ? "X" : "O"; // this is the copy one that we just created
     this.setState({
-      squares: squares, // remember that the this squares is **not** from state this is the copy that we made why? we'll see...
+      squares: squares,
       xIsNext: !this.state.xIsNext,
     });
   }
@@ -60,7 +65,7 @@ class Board extends React.Component {
     return (
       <Square
         value={this.state.squares[i]} // this will take the value from the state its either gonna be x . o or null ( which will render nothing )
-        onClick={() => this.handleClick(i)}
+        onClick={() => !this.state.squares[i] && this.handleClick(i)}
       />
     );
   }
@@ -93,6 +98,9 @@ class Board extends React.Component {
           {this.renderSquare(6)}
           {this.renderSquare(7)}
           {this.renderSquare(8)}
+        </div>
+        <div>
+          <RefreshBtn refreshClick={this.handleRefreshClick} />
         </div>
       </div>
     );
